@@ -88,10 +88,10 @@ const runWithWandbox = async (code, input) => {
     'compiler-option-raw': '-O2\n-lm'
   };
 
-  // Using corsproxy.io as a free proxy to bypass CORS
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://wandbox.org/api/compile.json');
+  // Use local Vite proxy / Netlify redirect proxy to compile
+  const url = '/api/wandbox/compile.json';
   
-  const response = await fetch(proxyUrl, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
