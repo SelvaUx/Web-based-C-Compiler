@@ -1,5 +1,7 @@
 # 🛠️ CodeForge IDE — Professional Online C Compiler
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-c--learner.netlify.app-18a0fb?style=for-the-badge&logo=netlify&logoColor=white)](https://c-learner.netlify.app/)
+
 CodeForge IDE is a premium, web-based C development environment designed to run fully client-side in the browser. It features a VS Code-style workspace with resizable panels, a tabbed editor layout, full standard library auto-completions, and a sandboxed remote compiler fallback system.
 
 ---
