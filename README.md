@@ -40,8 +40,8 @@ CodeForge IDE is a premium, web-based C development environment designed to run 
 ### Local Setup
 1. **Clone the Repository**:
    ```bash
-   git clone <repository_url>
-   cd web-based-c-compiler
+   git clone https://github.com/SelvaUx/Web-based-C-Compiler.git
+   cd Web-based-C-Compiler
    ```
 2. **Install Dependencies**:
    ```bash
