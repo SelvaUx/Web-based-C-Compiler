@@ -10,9 +10,10 @@ export const useCompilerStore = create((set, get) => ({
   executionTime: 0,
   memoryUsage: '4 MB', // mock display matching layout specs
   cpuUsage: '3%',     // mock display matching layout specs
-  exitStatus: 0,
+  stdin: '',
   terminalWriteCallback: null, // Callback to write to xterm.js instance
 
+  setStdin: (input) => set({ stdin: input }),
   setTerminalWriteCallback: (callback) => set({ terminalWriteCallback: callback }),
 
   clearOutput: () => {

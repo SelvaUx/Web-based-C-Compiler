@@ -10,6 +10,8 @@ const Toolbar = () => {
   const runCode = useCompilerStore((state) => state.runCode);
   const clearOutput = useCompilerStore((state) => state.clearOutput);
   
+  const stdin = useCompilerStore((state) => state.stdin);
+  
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
   const saveFile = useFileStore((state) => state.saveFile);
@@ -28,7 +30,7 @@ const Toolbar = () => {
     }
 
     // Start compilation & execution
-    runCode(activeFile.content);
+    runCode(activeFile.content, stdin);
   };
 
   const handleStop = () => {

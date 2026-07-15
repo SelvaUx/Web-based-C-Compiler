@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
-import { Terminal as TerminalIcon, Copy, Trash2, Download, Keyboard } from 'lucide-react';
+import { Terminal as TerminalIcon, Copy, Trash2, Download, Keyboard, HelpCircle } from 'lucide-react';
 import { useCompilerStore } from '../../stores/compilerStore';
 import toast from 'react-hot-toast';
 import '@xterm/xterm/css/xterm.css';
@@ -10,7 +10,10 @@ const Terminal = () => {
   const terminalRef = useRef(null);
   const xtermInstance = useRef(null);
   const fitAddonInstance = useRef(null);
-  const [stdinBuffer, setStdinBuffer] = useState('');
+  
+  // Connect to Zustand compilerStore
+  const stdin = useCompilerStore((state) => state.stdin);
+  const setStdin = useCompilerStore((state) => state.setStdin);
   const setTerminalWriteCallback = useCompilerStore((state) => state.setTerminalWriteCallback);
 
   useEffect(() => {
@@ -41,11 +44,17 @@ const Terminal = () => {
     term.loadAddon(fitAddon);
     
     term.open(terminalRef.current);
-    fitAddon.fit();
+    
+    // Defer fit logic to ensure DOM sizing calculations are finished
+    setTimeout(() => {
+      if (fitAddonInstance.current) {
+        fitAddonInstance.current.fit();
+      }
+    }, 100);
 
     // Welcome message
     term.write('\x1b[35m=== CodeForge Interactive Console ===\x1b[0m\r\n');
-    term.write('\x1b[90mType inputs here before clicking Run. Press Enter to submit.\x1b[0m\r\n\r\n');
+    term.write('\x1b[90mProvide inputs in the "Program Input" box on the right before clicking Compile & Run.\x1b[0m\r\n\r\n');
 
     // Handle user inputs in terminal
     let inputAccumulator = '';
@@ -53,7 +62,7 @@ const Terminal = () => {
       // If it's a carriage return or line feed
       if (data === '\r' || data === '\n') {
         term.write('\r\n');
-        setStdinBuffer((prev) => prev + inputAccumulator + '\n');
+        setStdin((prev) => prev + inputAccumulator + '\n');
         inputAccumulator = '';
       } else if (data === '\x7f') {
         // Backspace
@@ -85,22 +94,28 @@ const Terminal = () => {
       term.dispose();
       window.removeEventListener('resize', handleResize);
     };
-  }, [setTerminalWriteCallback]);
+  }, [setTerminalWriteCallback, setStdin]);
+
+  // Refit when layout size changes (e.g. sidebar open/close)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (fitAddonInstance.current) {
+        fitAddonInstance.current.fit();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [stdin]);
 
   const handleClear = () => {
     if (xtermInstance.current) {
       xtermInstance.current.clear();
       xtermInstance.current.write('\x1b[35m=== Console Cleared ===\x1b[0m\r\n\r\n');
-      setStdinBuffer('');
+      setStdin('');
     }
   };
 
   const handleCopy = () => {
-    // Select all text and copy
     if (xtermInstance.current) {
-      // In xterm.js, there is no direct full text retrieval easily in v5 without buffer iterations.
-      // So we can parse the buffer manually or let the user select.
-      // But we can extract text from the active buffer lines.
       const buffer = xtermInstance.current.buffer.active;
       let text = '';
       for (let i = 0; i < buffer.length; i++) {
@@ -151,7 +166,7 @@ const Terminal = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <TerminalIcon size={16} className="gradient-text" />
           <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>Terminal</span>
-          {stdinBuffer && (
+          {stdin && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8 }}>
               <Keyboard size={12} color="var(--accent)" />
               <span style={{ fontSize: '10px', color: 'var(--accent)' }}>Stdin buffered</span>
@@ -213,17 +228,62 @@ const Terminal = () => {
         </div>
       </div>
 
-      {/* Terminal View Container */}
-      <div 
-        ref={terminalRef} 
-        style={{ 
-          flex: 1, 
-          width: '100%', 
-          backgroundColor: '#0d1117',
-          padding: '8px',
+      {/* Terminal and Stdin side-by-side Viewport */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', width: '100%', height: '100%' }}>
+        {/* Terminal logs view */}
+        <div 
+          ref={terminalRef} 
+          style={{ 
+            flex: 1, 
+            backgroundColor: '#0d1117',
+            padding: '8px',
+            overflow: 'hidden'
+          }} 
+        />
+        
+        {/* Stdin Program inputs area */}
+        <div style={{
+          width: '260px',
+          backgroundColor: 'var(--bg-secondary)',
+          borderLeft: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
           overflow: 'hidden'
-        }} 
-      />
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 12px',
+            borderBottom: '1px solid var(--border)',
+            backgroundColor: 'var(--bg-tertiary)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              <Keyboard size={12} />
+              <span>Program Input (stdin)</span>
+            </div>
+            <HelpCircle size={12} title="Provide inputs required by scanf/gets before running code" style={{ color: 'var(--text-secondary)', cursor: 'help' }} />
+          </div>
+          <textarea
+            value={stdin}
+            onChange={(e) => setStdin(e.target.value)}
+            placeholder="Type program inputs here (e.g. 8 for scanf)..."
+            style={{
+              flex: 1,
+              backgroundColor: '#0d1117',
+              border: 'none',
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '13px',
+              padding: '10px',
+              resize: 'none',
+              outline: 'none',
+              lineHeight: '1.5'
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };
