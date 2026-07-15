@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCompilerStore } from '../../stores/compilerStore';
 import { useFileStore } from '../../stores/fileStore';
-import { Play, CheckCircle2, AlertTriangle, Info, HardDrive, Cpu, Terminal } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Loader2, HardDrive, Cpu, Clock, GitBranch } from 'lucide-react';
 
 const StatusBar = () => {
   const isCompiling = useCompilerStore((state) => state.isCompiling);
@@ -15,24 +15,22 @@ const StatusBar = () => {
   const activeFileId = useFileStore((state) => state.activeFileId);
   const activeFile = files.find(f => f.id === activeFileId);
 
-  const getStatusText = () => {
-    if (isCompiling) return 'Compiling...';
-    if (isRunning) return 'Running...';
-    if (rawError) return 'Build Failed';
-    return 'Ready';
-  };
+  const isBusy = isCompiling || isRunning;
 
-  const getStatusColor = () => {
-    if (isCompiling || isRunning) return 'var(--accent)';
-    if (rawError) return 'var(--error)';
-    return 'var(--success)';
-  };
+  const statusLabel = isCompiling ? 'Compiling…'
+    : isRunning  ? 'Running…'
+    : rawError   ? 'Build Failed'
+    : 'Ready';
 
-  const getStatusIcon = () => {
-    if (isCompiling || isRunning) return <Play size={12} className="animate-pulse" style={{ color: 'var(--accent)' }} />;
-    if (rawError) return <AlertTriangle size={12} style={{ color: 'var(--error)' }} />;
-    return <CheckCircle2 size={12} style={{ color: 'var(--success)' }} />;
-  };
+  const statusColor = isBusy ? 'var(--accent)'
+    : rawError   ? 'var(--error)'
+    : 'var(--success)';
+
+  const StatusIcon = isBusy
+    ? <Loader2 size={11} className="animate-spin" style={{ color: 'var(--accent)' }} />
+    : rawError
+    ? <AlertTriangle size={11} style={{ color: 'var(--error)' }} />
+    : <CheckCircle2 size={11} style={{ color: 'var(--success)' }} />;
 
   return (
     <div style={{
@@ -42,69 +40,88 @@ const StatusBar = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 16px',
+      padding: '0 14px',
       fontSize: '11px',
       color: 'var(--text-secondary)',
-      userSelect: 'none'
+      userSelect: 'none',
+      flexShrink: 0
     }}>
-      {/* Left panel: Build status & current file */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {getStatusIcon()}
-          <span style={{ fontWeight: 600, color: getStatusColor() }}>
-            {getStatusText()}
-          </span>
+      {/* Left */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+
+        {/* Build status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          {StatusIcon}
+          <span style={{ fontWeight: 600, color: statusColor }}>{statusLabel}</span>
         </div>
-        
+
+        {/* Active file */}
         {activeFile && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>File:</span>
-            <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{activeFile.name}</span>
-          </div>
+          <>
+            <div style={{ width: '1px', height: '12px', background: 'var(--border)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span>File:</span>
+              <span style={{ fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '10.5px' }}>
+                {activeFile.name}
+              </span>
+              {activeFile.isUnsaved && (
+                <span style={{
+                  fontSize: '9px', fontWeight: 700,
+                  color: 'var(--warning)',
+                  backgroundColor: 'rgba(var(--warning-rgb), 0.12)',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(var(--warning-rgb), 0.25)'
+                }}>UNSAVED</span>
+              )}
+            </div>
+          </>
         )}
 
-        <span style={{ color: 'var(--border)' }}>|</span>
-        <a 
-          href="https://selvaux.in" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          style={{ 
-            color: 'var(--text-secondary)', 
-            textDecoration: 'none', 
-            transition: 'color var(--transition-fast)' 
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-        >
-          Developer: Selva.Ux
-        </a>
+        <div style={{ width: '1px', height: '12px', background: 'var(--border)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <GitBranch size={10} />
+          <a
+            href="https://selvaux.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color var(--transition-fast)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+          >
+            Developer: Selva.Ux
+          </a>
+        </div>
       </div>
 
-      {/* Right panel: Performance metrics & coding configs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        {/* Performance stats if available */}
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         {executionTime > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Terminal size={11} />
+            <Clock size={10} />
             <span>Time: <strong style={{ color: 'var(--text-primary)' }}>{executionTime.toFixed(2)}s</strong></span>
           </div>
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <HardDrive size={11} />
+          <HardDrive size={10} />
           <span>RAM: <strong style={{ color: 'var(--text-primary)' }}>{memoryUsage}</strong></span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <Cpu size={11} />
+          <Cpu size={10} />
           <span>CPU: <strong style={{ color: 'var(--text-primary)' }}>{cpuUsage}</strong></span>
         </div>
 
-        <span style={{ color: 'var(--border)' }}>|</span>
-        
-        <span>LF</span>
-        <span>UTF-8</span>
-        <span>C Language</span>
+        <div style={{ width: '1px', height: '12px', background: 'var(--border)' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.02em', fontSize: '10px' }}>LF</span>
+        <span style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.02em', fontSize: '10px' }}>UTF-8</span>
+        <span style={{
+          color: 'var(--accent)',
+          fontWeight: 600,
+          fontSize: '10px',
+          letterSpacing: '0.02em'
+        }}>C Language</span>
       </div>
     </div>
   );

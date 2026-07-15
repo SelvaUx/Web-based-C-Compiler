@@ -1,90 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Color Palette - Dark Theme (Default) */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #090d13;
-  --surface: #21262d;
-  --surface-hover: #30363d;
-  --border: #30363d;
-  --border-focus: #58a6ff;
-  
-  --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
-  --text-muted: #484f58;
-  
-  --accent: #58a6ff;
-  --accent-rgb: 88, 166, 255;
-  --accent-glow: rgba(88, 166, 255, 0.15);
-  
-  --success: #3fb950;
+  /* === Color Palette - Dark Theme === */
+  --bg-primary:    #0d1117;
+  --bg-secondary:  #161b22;
+  --bg-tertiary:   #090d13;
+  --surface:       #1c2128;
+  --surface-hover: #2d333b;
+  --border:        #30363d;
+  --border-focus:  #388bfd;
+
+  --text-primary:   #e6edf3;
+  --text-secondary: #7d8590;
+  --text-muted:     #3d444d;
+
+  --accent:     #388bfd;
+  --accent-rgb: 56, 139, 253;
+  --accent-glow: rgba(56, 139, 253, 0.2);
+
+  --success:     #3fb950;
   --success-rgb: 63, 185, 80;
-  --error: #f85149;
-  --error-rgb: 248, 81, 73;
-  --warning: #d29922;
+  --error:       #f85149;
+  --error-rgb:   248, 81, 73;
+  --warning:     #d29922;
   --warning-rgb: 210, 153, 34;
 
-  --grad-start: #7c4dff;
-  --grad-end: #18a0fb;
-  --grad-accent: linear-gradient(135deg, var(--grad-start) 0%, var(--grad-end) 100%);
-  
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  
-  --glass-bg: rgba(22, 27, 34, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(12px);
+  --grad-start:  #7c4dff;
+  --grad-mid:    #4080ff;
+  --grad-end:    #18a0fb;
+  --grad-accent: linear-gradient(135deg, var(--grad-start) 0%, var(--grad-mid) 50%, var(--grad-end) 100%);
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+
+  --glass-bg:     rgba(22,27,34,0.75);
+  --glass-border: rgba(255,255,255,0.07);
+  --glass-blur:   blur(14px);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --transition-fast:   0.12s ease;
+  --transition-normal: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .light-theme {
-  /* Color Palette - Light Theme */
-  --bg-primary: #f6f8fa;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #eaeef2;
-  --surface: #ffffff;
-  --surface-hover: #f3f4f6;
-  --border: #d0d7de;
-  --border-focus: #0969da;
-  
-  --text-primary: #24292f;
-  --text-secondary: #57606a;
-  --text-muted: #8c959f;
-  
-  --accent: #0969da;
+  --bg-primary:    #f6f8fa;
+  --bg-secondary:  #ffffff;
+  --bg-tertiary:   #eaeef2;
+  --surface:       #ffffff;
+  --surface-hover: #f0f3f6;
+  --border:        #d0d7de;
+  --border-focus:  #0969da;
+
+  --text-primary:   #1f2328;
+  --text-secondary: #636c76;
+  --text-muted:     #9198a1;
+
+  --accent:     #0969da;
   --accent-rgb: 9, 105, 218;
-  --accent-glow: rgba(9, 105, 218, 0.1);
-  
-  --success: #1a7f37;
+  --accent-glow: rgba(9, 105, 218, 0.12);
+
+  --success:     #1a7f37;
   --success-rgb: 26, 127, 55;
-  --error: #cf222e;
-  --error-rgb: 207, 34, 46;
-  --warning: #9a6700;
+  --error:       #cf222e;
+  --error-rgb:   207, 34, 46;
+  --warning:     #9a6700;
   --warning-rgb: 154, 103, 0;
 
-  --grad-start: #5432d3;
-  --grad-end: #0969da;
-  
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-  
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --grad-start:  #5432d3;
+  --grad-mid:    #1264d6;
+  --grad-end:    #0969da;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+
+  --glass-bg:     rgba(255,255,255,0.75);
+  --glass-border: rgba(0,0,0,0.06);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ===================== RESET ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   background-color: var(--bg-primary);
@@ -95,28 +94,20 @@ body {
   width: 100vw;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
-}
-
+/* ===================== SCROLLBARS ===================== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: 99px;
 }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* Utilities */
+/* ===================== UTILITIES ===================== */
 .glass {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -127,34 +118,90 @@ body {
 .gradient-text {
   background: var(--grad-accent);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* Primary CTA button with gradient + glow */
 .glow-btn {
   background: var(--grad-accent);
   color: #fff;
   border: none;
   font-family: var(--font-sans);
   font-weight: 600;
-  border-radius: 6px;
+  font-size: 13px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all var(--transition-normal);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 0 15px rgba(24, 160, 251, 0.3);
+  gap: 7px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 0 18px rgba(56,139,253, 0.35), 0 2px 8px rgba(0,0,0,0.25);
+  position: relative;
+  overflow: hidden;
 }
 
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.glow-btn:hover::before { opacity: 1; }
 .glow-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 25px rgba(24, 160, 251, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 28px rgba(56,139,253,0.55), 0 4px 14px rgba(0,0,0,0.3);
 }
-
 .glow-btn:active {
-  transform: translateY(1px);
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 0 12px rgba(56,139,253,0.3);
 }
 
-/* Custom panels layout styling */
+/* Ghost / outline button */
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.ghost-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+/* Icon-only toolbar button */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+.icon-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* ===================== LAYOUT ===================== */
 .ide-container {
   display: flex;
   flex-direction: column;
@@ -163,69 +210,117 @@ body {
   background-color: var(--bg-primary);
 }
 
-/* React Resizable Panels Styles overrides */
-.PanelGroup {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-  width: 100%;
-}
+/* ===================== PANEL HANDLES ===================== */
+.PanelGroup { display: flex; flex-direction: row; height: 100%; width: 100%; }
 
 .ResizeHandle {
   position: relative;
   background-color: var(--border);
   transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.ResizeHandle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transition: background-color var(--transition-fast);
 }
 
 .ResizeHandle[data-resize-handle-state="hover"],
 .ResizeHandle[data-resize-handle-state="drag"] {
-  background-color: var(--accent);
+  background: var(--grad-accent);
 }
 
 .ResizeHandleHorizontal {
-  width: 4px;
+  width: 3px;
   cursor: col-resize;
   height: 100%;
 }
-
 .ResizeHandleVertical {
-  height: 4px;
+  height: 3px;
   cursor: row-resize;
   width: 100%;
 }
 
-/* xterm terminal styling custom wrapper */
+/* ===================== XTERM TERMINAL ===================== */
 .terminal-container {
   width: 100%;
   height: 100%;
-  background-color: #000;
+  background-color: #0d1117;
   padding: 8px 12px;
   box-sizing: border-box;
 }
+.xterm { height: 100%; }
+.xterm-viewport { overflow-y: auto !important; }
 
-.xterm {
-  height: 100%;
-}
-
-.xterm-viewport {
-  overflow-y: auto !important;
-}
-
-/* Standard animation utility */
+/* ===================== ANIMATIONS ===================== */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
+  50% { opacity: 0.45; }
 }
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+.animate-pulse { animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 0.9s linear infinite; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.18s ease forwards; }
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slideInLeft { animation: slideInLeft 0.2s ease forwards; }
+
+/* ===================== BADGE ===================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid;
+}
+.badge-accent {
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: rgba(var(--accent-rgb), 0.25);
+}
+.badge-success {
+  color: var(--success);
+  background: rgba(var(--success-rgb), 0.1);
+  border-color: rgba(var(--success-rgb), 0.25);
+}
+.badge-error {
+  color: var(--error);
+  background: rgba(var(--error-rgb), 0.1);
+  border-color: rgba(var(--error-rgb), 0.25);
+}
+.badge-warning {
+  color: var(--warning);
+  background: rgba(var(--warning-rgb), 0.1);
+  border-color: rgba(var(--warning-rgb), 0.25);
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+/* ===================== COMPILER PANEL GLOW LINE ===================== */
+.toolbar-glow-line {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--grad-accent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
 }
+.is-compiling .toolbar-glow-line { opacity: 1; animation: pulse 1.2s ease infinite; }

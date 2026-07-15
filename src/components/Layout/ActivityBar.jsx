@@ -1,20 +1,19 @@
 import React from 'react';
-import { Files, Code, Settings, Terminal, Moon, Sun } from 'lucide-react';
+import { Files, Code2, Settings2, Moon, Sun } from 'lucide-react';
 import { useSettingsStore } from '../../stores/settingsStore';
+
+const navItems = [
+  { id: 'files',    icon: Files,    label: 'File Explorer' },
+  { id: 'snippets', icon: Code2,    label: 'Code Templates' },
+  { id: 'settings', icon: Settings2, label: 'Settings' },
+];
 
 const ActivityBar = ({ activePanel, setActivePanel }) => {
   const theme = useSettingsStore((state) => state.theme);
   const updateSetting = useSettingsStore((state) => state.updateSetting);
 
-  const toggleTheme = () => {
+  const toggleTheme = () =>
     updateSetting('theme', theme === 'dark' ? 'light' : 'dark');
-  };
-
-  const navItems = [
-    { id: 'files', icon: Files, label: 'File Explorer' },
-    { id: 'snippets', icon: Code, label: 'Code Templates' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
-  ];
 
   return (
     <div style={{
@@ -25,22 +24,21 @@ const ActivityBar = ({ activePanel, setActivePanel }) => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '12px 0',
-      userSelect: 'none'
+      padding: '10px 0',
+      userSelect: 'none',
+      flexShrink: 0
     }}>
-      {/* Top Action Items */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', alignItems: 'center' }}>
-        {navItems.map((item) => {
-          const isActive = activePanel === item.id;
-          const Icon = item.icon;
-
+      {/* Top nav icons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%', alignItems: 'center' }}>
+        {navItems.map(({ id, icon: Icon, label }) => {
+          const isActive = activePanel === id;
           return (
             <button
-              key={item.id}
-              onClick={() => setActivePanel(isActive ? null : item.id)}
-              title={item.label}
+              key={id}
+              onClick={() => setActivePanel(isActive ? null : id)}
+              title={label}
               style={{
-                background: 'none',
+                background: isActive ? 'rgba(var(--accent-rgb), 0.1)' : 'none',
                 border: 'none',
                 color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer',
@@ -50,26 +48,34 @@ const ActivityBar = ({ activePanel, setActivePanel }) => {
                 justifyContent: 'center',
                 position: 'relative',
                 width: '100%',
-                transition: 'color var(--transition-fast)'
+                borderRadius: '0',
+                transition: 'color var(--transition-fast), background var(--transition-fast)'
               }}
               onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.color = 'var(--text-primary)';
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'var(--surface-hover)';
+                }
               }}
               onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.color = 'var(--text-secondary)';
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.background = 'none';
+                }
               }}
             >
-              <Icon size={20} />
-              
+              <Icon size={19} strokeWidth={isActive ? 2.2 : 1.8} />
+
+              {/* Active indicator strip */}
               {isActive && (
                 <div style={{
                   position: 'absolute',
                   left: 0,
-                  top: '15%',
-                  height: '70%',
+                  top: '18%',
+                  height: '64%',
                   width: '3px',
                   background: 'var(--grad-accent)',
-                  borderRadius: '0 4px 4px 0'
+                  borderRadius: '0 4px 4px 0',
                 }} />
               )}
             </button>
@@ -77,33 +83,33 @@ const ActivityBar = ({ activePanel, setActivePanel }) => {
         })}
       </div>
 
-      {/* Bottom Switch theme button */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+      {/* Bottom: theme toggle */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
         <button
           onClick={toggleTheme}
-          title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           style={{
             background: 'none',
             border: 'none',
             color: 'var(--text-secondary)',
             cursor: 'pointer',
             padding: '8px',
-            borderRadius: '50%',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'background-color var(--transition-fast), color var(--transition-fast)'
+            transition: 'background var(--transition-fast), color var(--transition-fast)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = 'var(--text-primary)';
-            e.currentTarget.style.backgroundColor = 'var(--surface-hover)';
+            e.currentTarget.style.background = 'var(--surface-hover)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.color = 'var(--text-secondary)';
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.background = 'none';
           }}
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
         </button>
       </div>
     </div>

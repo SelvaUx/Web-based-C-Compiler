@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
-import { Terminal as TerminalIcon, Copy, Trash2, Download, Keyboard, HelpCircle } from 'lucide-react';
+import { Terminal as TerminalIcon, Copy, Trash2, Download, Keyboard, Info } from 'lucide-react';
 import { useCompilerStore } from '../../stores/compilerStore';
 import toast from 'react-hot-toast';
 import '@xterm/xterm/css/xterm.css';
@@ -10,84 +10,82 @@ const Terminal = () => {
   const terminalRef = useRef(null);
   const xtermInstance = useRef(null);
   const fitAddonInstance = useRef(null);
-  
-  // Connect to Zustand compilerStore
+
   const stdin = useCompilerStore((state) => state.stdin);
   const setStdin = useCompilerStore((state) => state.setStdin);
   const setTerminalWriteCallback = useCompilerStore((state) => state.setTerminalWriteCallback);
 
   useEffect(() => {
-    // Initialize xterm
     const term = new XTerm({
       cursorBlink: true,
-      cursorStyle: 'block',
-      fontSize: 14,
-      fontFamily: 'JetBrains Mono, monospace',
+      cursorStyle: 'bar',
+      fontSize: 13,
+      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+      lineHeight: 1.55,
       theme: {
-        background: '#0d1117',
-        foreground: '#e6edf3',
-        cursor: '#58a6ff',
-        selectionBackground: '#388bfd33',
-        black: '#000000',
-        red: '#f85149',
-        green: '#3fb950',
-        yellow: '#d29922',
-        blue: '#58a6ff',
+        background:          '#0d1117',
+        foreground:          '#e6edf3',
+        cursor:              '#388bfd',
+        cursorAccent:        '#0d1117',
+        selectionBackground: 'rgba(56,139,253,0.22)',
+        black:   '#21262d',
+        red:     '#f85149',
+        green:   '#3fb950',
+        yellow:  '#d29922',
+        blue:    '#388bfd',
         magenta: '#bc8cff',
-        cyan: '#39c5cf',
-        white: '#e6edf3',
+        cyan:    '#39c5cf',
+        white:   '#e6edf3',
+        brightBlack:   '#484f58',
+        brightRed:     '#ff7b72',
+        brightGreen:   '#56d364',
+        brightYellow:  '#e3b341',
+        brightBlue:    '#79c0ff',
+        brightMagenta: '#d2a8ff',
+        brightCyan:    '#56d4dd',
+        brightWhite:   '#f0f6fc',
       },
-      convertEol: true
+      convertEol: true,
+      scrollback: 1000,
     });
 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
-    
     term.open(terminalRef.current);
-    
-    // Defer fit logic to ensure DOM sizing calculations are finished
+
     setTimeout(() => {
-      if (fitAddonInstance.current) {
-        fitAddonInstance.current.fit();
-      }
-    }, 100);
+      if (fitAddonInstance.current) fitAddonInstance.current.fit();
+    }, 80);
 
     // Welcome message
-    term.write('\x1b[35m=== CodeForge Interactive Console ===\x1b[0m\r\n');
-    term.write('\x1b[90mProvide inputs in the "Program Input" box on the right before clicking Compile & Run.\x1b[0m\r\n\r\n');
+    term.write('\x1b[38;5;99m  ╔═══════════════════════════════╗\x1b[0m\r\n');
+    term.write('\x1b[38;5;99m  ║  \x1b[1;97mCodeForge IDE  \x1b[0m\x1b[38;5;69m Console      \x1b[38;5;99m║\x1b[0m\r\n');
+    term.write('\x1b[38;5;99m  ╚═══════════════════════════════╝\x1b[0m\r\n');
+    term.write('\x1b[90m  Add inputs on the right → then click Compile & Run\x1b[0m\r\n\r\n');
 
-    // Handle user inputs in terminal
+    // Handle user input in terminal (echoed to stdin store)
     let inputAccumulator = '';
     term.onData((data) => {
-      // If it's a carriage return or line feed
       if (data === '\r' || data === '\n') {
         term.write('\r\n');
         setStdin((prev) => prev + inputAccumulator + '\n');
         inputAccumulator = '';
       } else if (data === '\x7f') {
-        // Backspace
         if (inputAccumulator.length > 0) {
           inputAccumulator = inputAccumulator.slice(0, -1);
-          term.write('\b \b'); // erase character from terminal screen
+          term.write('\b \b');
         }
       } else {
         inputAccumulator += data;
-        term.write(data); // echo character
+        term.write(data);
       }
     });
 
     xtermInstance.current = term;
     fitAddonInstance.current = fitAddon;
-
-    // Connect compilerStore to write to this terminal
     setTerminalWriteCallback((text) => term.write(text));
 
-    // Handle window resize
-    const handleResize = () => {
-      if (fitAddonInstance.current) {
-        fitAddonInstance.current.fit();
-      }
-    };
+    const handleResize = () => fitAddonInstance.current?.fit();
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -96,192 +94,184 @@ const Terminal = () => {
     };
   }, [setTerminalWriteCallback, setStdin]);
 
-  // Refit when layout size changes (e.g. sidebar open/close)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (fitAddonInstance.current) {
-        fitAddonInstance.current.fit();
-      }
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [stdin]);
+    const t = setTimeout(() => fitAddonInstance.current?.fit(), 120);
+    return () => clearTimeout(t);
+  });
 
   const handleClear = () => {
-    if (xtermInstance.current) {
-      xtermInstance.current.clear();
-      xtermInstance.current.write('\x1b[35m=== Console Cleared ===\x1b[0m\r\n\r\n');
-      setStdin('');
-    }
+    xtermInstance.current?.clear();
+    xtermInstance.current?.write('\x1b[35m  Console cleared.\x1b[0m\r\n\r\n');
+    setStdin('');
   };
 
   const handleCopy = () => {
-    if (xtermInstance.current) {
-      const buffer = xtermInstance.current.buffer.active;
-      let text = '';
-      for (let i = 0; i < buffer.length; i++) {
-        const line = buffer.getLine(i);
-        if (line) {
-          text += line.translateToString() + '\n';
-        }
-      }
-      navigator.clipboard.writeText(text.trim());
-      toast.success('Terminal output copied!');
+    const buf = xtermInstance.current?.buffer.active;
+    if (!buf) return;
+    let text = '';
+    for (let i = 0; i < buf.length; i++) {
+      const line = buf.getLine(i);
+      if (line) text += line.translateToString() + '\n';
     }
+    navigator.clipboard.writeText(text.trim());
+    toast.success('Copied to clipboard!');
   };
 
   const handleDownload = () => {
-    if (xtermInstance.current) {
-      const buffer = xtermInstance.current.buffer.active;
-      let text = '';
-      for (let i = 0; i < buffer.length; i++) {
-        const line = buffer.getLine(i);
-        if (line) {
-          text += line.translateToString() + '\n';
-        }
-      }
-      
-      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'terminal_output.txt';
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success('Terminal output downloaded!');
+    const buf = xtermInstance.current?.buffer.active;
+    if (!buf) return;
+    let text = '';
+    for (let i = 0; i < buf.length; i++) {
+      const line = buf.getLine(i);
+      if (line) text += line.translateToString() + '\n';
     }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'output.txt'; a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Output downloaded!');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
-      {/* Terminal Toolbar */}
+
+      {/* ── Terminal Toolbar ── */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '6px 12px',
+        padding: '5px 10px',
         backgroundColor: 'var(--bg-secondary)',
         borderBottom: '1px solid var(--border)',
-        userSelect: 'none'
+        userSelect: 'none',
+        flexShrink: 0,
+        height: '34px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <TerminalIcon size={16} className="gradient-text" />
-          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>Terminal</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <TerminalIcon size={14} className="gradient-text" />
+          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+            Terminal
+          </span>
           {stdin && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.8 }}>
-              <Keyboard size={12} color="var(--accent)" />
-              <span style={{ fontSize: '10px', color: 'var(--accent)' }}>Stdin buffered</span>
-            </div>
+            <span className="badge badge-accent animate-fadeIn">
+              <Keyboard size={9} />
+              Stdin set
+            </span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button 
-            onClick={handleCopy} 
-            title="Copy Terminal Output"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'flex',
-              padding: '4px',
-              borderRadius: '4px'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'none'}
-          >
-            <Copy size={14} />
-          </button>
-          <button 
-            onClick={handleDownload} 
-            title="Download Log"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'flex',
-              padding: '4px',
-              borderRadius: '4px'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'none'}
-          >
-            <Download size={14} />
-          </button>
-          <button 
-            onClick={handleClear} 
-            title="Clear Terminal"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'flex',
-              padding: '4px',
-              borderRadius: '4px'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'none'}
-          >
-            <Trash2 size={14} />
-          </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {[
+            { icon: Copy,     label: 'Copy output',   fn: handleCopy },
+            { icon: Download, label: 'Download log',  fn: handleDownload },
+            { icon: Trash2,   label: 'Clear terminal',fn: handleClear },
+          ].map(({ icon: Icon, label, fn }) => (
+            <button key={label} className="icon-btn" onClick={fn} title={label}>
+              <Icon size={13} />
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Terminal and Stdin side-by-side Viewport */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', width: '100%', height: '100%' }}>
-        {/* Terminal logs view */}
-        <div 
-          ref={terminalRef} 
-          style={{ 
-            flex: 1, 
+      {/* ── Main viewport: xterm + stdin panel ── */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* xterm output */}
+        <div
+          ref={terminalRef}
+          style={{
+            flex: 1,
             backgroundColor: '#0d1117',
-            padding: '8px',
-            overflow: 'hidden'
-          }} 
+            padding: '6px',
+            overflow: 'hidden',
+            minWidth: 0,
+          }}
         />
-        
-        {/* Stdin Program inputs area */}
+
+        {/* Stdin input panel */}
         <div style={{
-          width: '260px',
+          width: '240px',
+          minWidth: '200px',
           backgroundColor: 'var(--bg-secondary)',
           borderLeft: '1px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
-          overflow: 'hidden'
+          flexShrink: 0,
         }}>
+          {/* Panel header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '6px 12px',
+            padding: '6px 10px',
             borderBottom: '1px solid var(--border)',
-            backgroundColor: 'var(--bg-tertiary)'
+            backgroundColor: 'var(--bg-tertiary)',
+            flexShrink: 0,
+            height: '34px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              <Keyboard size={12} />
-              <span>Program Input (stdin)</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 600 }}>
+              <Keyboard size={11} />
+              <span>Program Input</span>
             </div>
-            <HelpCircle size={12} title="Provide inputs required by scanf/gets before running code" style={{ color: 'var(--text-secondary)', cursor: 'help' }} />
+            <Info
+              size={11}
+              style={{ color: 'var(--text-muted)', cursor: 'help', flexShrink: 0 }}
+              title="Type inputs your program needs (e.g. scanf values). One value per line. These are passed as stdin when you click Compile & Run."
+            />
           </div>
+
+          {/* Textarea */}
           <textarea
             value={stdin}
             onChange={(e) => setStdin(e.target.value)}
-            placeholder="Type program inputs here (e.g. 8 for scanf)..."
+            placeholder={'Enter inputs here…\n(one per line)\n\nExample:\n5\nhello\n3.14'}
+            spellCheck={false}
             style={{
               flex: 1,
               backgroundColor: '#0d1117',
               border: 'none',
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '13px',
-              padding: '10px',
+              color: '#e6edf3',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '12.5px',
+              lineHeight: '1.6',
+              padding: '10px 12px',
               resize: 'none',
               outline: 'none',
-              lineHeight: '1.5'
+              width: '100%',
             }}
           />
+
+          {/* Footer hint */}
+          <div style={{
+            padding: '5px 10px',
+            borderTop: '1px solid var(--border)',
+            fontSize: '10px',
+            color: 'var(--text-muted)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexShrink: 0,
+          }}>
+            <span>{stdin.split('\n').filter(Boolean).length} line{stdin.split('\n').filter(Boolean).length !== 1 ? 's' : ''}</span>
+            {stdin && (
+              <button
+                onClick={() => setStdin('')}
+                style={{
+                  background: 'none', border: 'none',
+                  color: 'var(--text-muted)',
+                  fontSize: '10px', cursor: 'pointer',
+                  padding: '1px 4px', borderRadius: '3px',
+                  transition: 'color var(--transition-fast)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                title="Clear all inputs"
+              >
+                clear
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
